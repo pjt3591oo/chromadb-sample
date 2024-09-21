@@ -1,10 +1,15 @@
 import chromadb
 import uuid
-from embedding import get_sentence_embedding
+from chromadb.utils import embedding_functions
+
+model_name = "Huffon/sentence-klue-roberta-base"
+default_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=model_name)
+
+rst = default_ef(["This is a document about pineapple"])
 
 chroma_client = chromadb.HttpClient(host="localhost", port=8000)
 
-collection = chroma_client.get_or_create_collection("new_collection", embedding_function=get_sentence_embedding)
+collection = chroma_client.get_or_create_collection("new_collection", embedding_function=default_ef)
 
 documents=[
     "This is a document about pineapple",
@@ -12,10 +17,6 @@ documents=[
     "This is a document about apples",
     "I'm JeongTae Park"
 ]
-
-# embeddings = [
-#     get_sentence_embedding(document) for document in documents
-# ]
 
 ids = [
     str(uuid.uuid4()) for i in range(len(documents))
@@ -27,7 +28,6 @@ metadatas = [
 
 collection.add(
     documents=documents,
-    # embeddings=embeddings,
     metadatas=metadatas,
     ids = ids
 )
